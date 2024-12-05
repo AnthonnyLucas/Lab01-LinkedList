@@ -2,182 +2,155 @@ package estruturaDeDados;
 
 public class ListaCircular {
 
-    private Node head; // Cabeça da lista circular
-    private Node tail; // Cauda da lista circular
+    // Classe interna para representar um nó da lista
+    private class No {
+        int valor;
+        No proximo;
 
-    // Classe interna Node que representa cada nó da lista
-    private static class Node {
-        int data;  // Dados armazenados no nó
-        Node next; // Referência para o próximo nó
-        
-        // Construtor para criar um nó com um dado
-        Node(int data) {
-            this.data = data;
-            this.next = null;
+        public No(int valor) {
+            this.valor = valor;
+            this.proximo = null;
         }
     }
 
-    // Construtor da lista circular (inicializa a lista como vazia)
+    private No ultimo; // Referência para o último nó da lista
+    private int tamanho; // Quantidade de elementos na lista
+
     public ListaCircular() {
-        this.head = null;  // Inicializa a cabeça como nula
-        this.tail = null;  // Inicializa a cauda como nula
+        this.ultimo = null;
+        this.tamanho = 0;
     }
 
-    // Insere um elemento no início da lista circular
+    // Insere um elemento no início da lista
     public void insereInicio(int i) {
-        Node newNode = new Node(i);  // Cria um novo nó
-
-        if (head == null) {  // Se a lista estiver vazia
-            head = newNode;
-            tail = newNode;  // O novo nó é tanto a cabeça quanto a cauda
-            tail.next = head;  // A cauda aponta para a cabeça, completando o ciclo
+        No novo = new No(i);
+        if (ultimo == null) {
+            // Lista está vazia, o nó aponta para si mesmo
+            novo.proximo = novo;
+            ultimo = novo;
         } else {
-            newNode.next = head;  // O novo nó aponta para a cabeça
-            head = newNode;  // A cabeça agora é o novo nó
-            tail.next = head;  // A cauda continua apontando para a cabeça (circularidade)
+            novo.proximo = ultimo.proximo;
+            ultimo.proximo = novo;
         }
+        tamanho++;
     }
 
-    // Busca um elemento na lista circular
-    public boolean buscaElemento(int i) {
-        if (head == null) return false;  // Se a lista estiver vazia, retorna falso
-
-        Node current = head;
-        do {
-            if (current.data == i) {
-                return true;  // Se encontrar o elemento, retorna verdadeiro
-            }
-            current = current.next;  // Avança para o próximo nó
-        } while (current != head);  // Se retornar à cabeça, terminou a busca
-
-        return false;  // Elemento não encontrado
-    }
-
-    // Busca um elemento pelo índice na lista circular
-    public Object buscaIndice(int i) {
-        if (head == null) return null;  // Se a lista estiver vazia, retorna null
-
-        Node current = head;
-        int index = 0;
-        do {
-            if (index == i) {
-                return current.data;  // Retorna o dado no índice especificado
-            }
-            current = current.next;  // Avança para o próximo nó
-            index++;
-        } while (current != head);  // Se retornar à cabeça, terminou a busca
-
-        return null;  // Índice fora do alcance
-    }
-
-    // Insere um elemento no final da lista circular
+    // Insere um elemento no final da lista
     public void insereFim(int i) {
-        Node newNode = new Node(i);  // Cria um novo nó
-
-        if (head == null) {  // Se a lista estiver vazia
-            head = newNode;
-            tail = newNode;  // O novo nó é tanto a cabeça quanto a cauda
-            tail.next = head;  // A cauda aponta para a cabeça, completando o ciclo
+        No novo = new No(i);
+        if (ultimo == null) {
+            // Lista está vazia, o nó aponta para si mesmo
+            novo.proximo = novo;
+            ultimo = novo;
         } else {
-            tail.next = newNode;  // O atual último nó aponta para o novo nó
-            tail = newNode;  // A cauda agora é o novo nó
-            tail.next = head;  // A cauda aponta para a cabeça (circularidade)
+            novo.proximo = ultimo.proximo;
+            ultimo.proximo = novo;
+            ultimo = novo;
         }
+        tamanho++;
     }
 
-    // Remove o primeiro elemento da lista circular
-    public void removeInicio() {
-        if (head == null) return;  // Se a lista estiver vazia, não há o que remover
-
-        if (head == tail) {  // Se a lista tem apenas um nó
-            head = null;
-            tail = null;  // A lista agora está vazia
-        } else {
-            head = head.next;  // A cabeça agora é o próximo nó
-            tail.next = head;  // A cauda continua apontando para a nova cabeça
+    // Busca se um elemento está na lista
+    public boolean buscaElemento(int i) {
+        if (ultimo == null) {
+            return false; // Lista vazia
         }
-    }
-
-    // Remove o último elemento da lista circular
-    public void removeFim() {
-        if (head == null) return;  // Se a lista estiver vazia, não há o que remover
-
-        if (head == tail) {  // Se a lista tem apenas um nó
-            head = null;
-            tail = null;  // A lista agora está vazia
-        } else {
-            Node current = head;
-            while (current.next != tail) {
-                current = current.next;  // Avança até o penúltimo nó
+        No atual = ultimo.proximo;
+        do {
+            if (atual.valor == i) {
+                return true; // Elemento encontrado
             }
-            current.next = head;  // O penúltimo nó agora aponta para a cabeça
-            tail = current;  // A cauda passa a ser o penúltimo nó
-        }
+            atual = atual.proximo;
+        } while (atual != ultimo.proximo);
+        return false; // Elemento não encontrado
     }
 
-    // Remove um elemento de uma posição específica (índice)
-    public void removeIndice(int i) {
-        if (head == null) return;  // Se a lista estiver vazia, não há o que remover
+    // Busca o elemento pelo índice
+    public Object buscaIndice(int i) {
+        if (i < 0 || i >= tamanho) {
+            return null; // Índice inválido
+        }
+        No atual = ultimo.proximo;
+        for (int pos = 0; pos < i; pos++) {
+            atual = atual.proximo;
+        }
+        return atual.valor;
+    }
 
-        if (i == 0) {  // Se o índice for 0, remove o primeiro nó
+    // Remove o primeiro elemento da lista
+    public void removeInicio() {
+        if (ultimo == null) {
+            return; // Lista vazia
+        }
+        if (ultimo == ultimo.proximo) {
+            // Apenas um elemento na lista
+            ultimo = null;
+        } else {
+            ultimo.proximo = ultimo.proximo.proximo;
+        }
+        tamanho--;
+    }
+
+    // Remove o último elemento da lista
+    public void removeFim() {
+        if (ultimo == null) {
+            return; // Lista vazia
+        }
+        if (ultimo == ultimo.proximo) {
+            // Apenas um elemento na lista
+            ultimo = null;
+        } else {
+            No atual = ultimo.proximo;
+            while (atual.proximo != ultimo) {
+                atual = atual.proximo;
+            }
+            atual.proximo = ultimo.proximo;
+            ultimo = atual;
+        }
+        tamanho--;
+    }
+
+    // Remove um elemento em um índice específico
+    public void removeIndice(int i) {
+        if (i < 0 || i >= tamanho) {
+            return; // Índice inválido
+        }
+        if (i == 0) {
             removeInicio();
             return;
         }
-
-        Node current = head;
-        int index = 0;
-        while (current != tail && index < i - 1) {
-            current = current.next;  // Avança até o nó anterior ao que será removido
-            index++;
+        No atual = ultimo.proximo;
+        for (int pos = 0; pos < i - 1; pos++) {
+            atual = atual.proximo;
         }
-
-        if (current != tail) {  // Se encontrou o nó anterior ao removido
-            current.next = current.next.next;  // O nó anterior aponta para o nó seguinte
-            if (current.next == head) {
-                tail = current;  // Se a cauda for removida, a nova cauda é o nó atual
-            }
+        atual.proximo = atual.proximo.proximo;
+        if (atual.proximo == ultimo.proximo) {
+            // Atualizou o último elemento
+            ultimo = atual;
         }
+        tamanho--;
     }
 
-    // Insere um elemento em uma posição específica na lista circular
+    // Insere um elemento em uma posição específica
     public void insereElementoPosicao(int i, int j) {
-        if (i < 0) return;  // Se o índice for negativo, não faz nada
-
-        if (i == 0) {  // Se for para inserir no início
-            insereInicio(j);
+        if (j < 0 || j > tamanho) {
+            return; // Índice inválido
+        }
+        if (j == 0) {
+            insereInicio(i);
             return;
         }
-
-        Node newNode = new Node(j);  // Cria um novo nó
-        Node current = head;
-        int index = 0;
-
-        // Percorre até o nó anterior à posição onde o novo nó será inserido
-        while (current != tail && index < i - 1) {
-            current = current.next;
-            index++;
+        No novo = new No(i);
+        No atual = ultimo.proximo;
+        for (int pos = 0; pos < j - 1; pos++) {
+            atual = atual.proximo;
         }
-
-        if (current == tail) {  // Se for para inserir no final
-            insereFim(j);
-        } else {  // Caso contrário, insere no meio
-            newNode.next = current.next;  // O novo nó aponta para o próximo nó
-            current.next = newNode;  // O nó anterior aponta para o novo nó
+        novo.proximo = atual.proximo;
+        atual.proximo = novo;
+        if (novo.proximo == ultimo.proximo) {
+            // Atualizou o último elemento
+            ultimo = novo;
         }
-    }
-
-    // Método para exibir os elementos da lista circular
-    public void exibirLista() {
-        if (head == null) {
-            System.out.println("Lista vazia.");
-            return;
-        }
-
-        Node current = head;
-        do {
-            System.out.print(current.data + " -> ");  // Exibe o valor do nó
-            current = current.next;  // Avança para o próximo nó
-        } while (current != head);  // Se retornar à cabeça, termina a exibição
-        System.out.println("(retorno à cabeça)");  // Indica que a lista é circular
+        tamanho++;
     }
 }
